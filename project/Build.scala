@@ -23,9 +23,13 @@ import com.typesafe.sbt.web.Import.WebKeys._
 
 object ApplicationBuild extends Build {
 
-  val appVersion = "2.6.2"
+  val appVersion = "2.6.4"
 
   val hiveVersion = "0.14.0.2.2.4.2-2"
+  ////val hiveVersion = "1.2.0"
+
+  ///val hiveMetastoreVersion = "1.2.0"
+  val hiveMetastoreVersion = "0.14.0.2.2.4.2-2"
 
   val hadoopVersion = "2.6.0.2.2.4.2-2"
 
@@ -223,7 +227,7 @@ export HIVE_CONF_DIR=/usr/hdp/current/hive-client/conf
   def metastoreDependencies = Seq(
 	  ("org.apache.hive" % "hive-common" % hiveVersion),
 	  ("org.apache.hive" % "hive-shims" % hiveVersion),
-	  ("org.apache.hive" % "hive-metastore" % hiveVersion),
+	  ("org.apache.hive" % "hive-metastore" % hiveMetastoreVersion),
 	  ("org.apache.hive" % "hive-serde" % hiveVersion),
 	  ("org.apache.hive" % "hive-exec" % hiveVersion),
 	  ("org.apache.calcite" % "calcite-core" % "0.9.1-incubating"),
@@ -238,7 +242,7 @@ export HIVE_CONF_DIR=/usr/hdp/current/hive-client/conf
   def hiveDependencies = Seq(
 	  ("org.apache.hive" % "hive-common" % hiveVersion),
 	  ("org.apache.hive" % "hive-exec" % hiveVersion),
-	  ("org.apache.hive" % "hive-metastore" % hiveVersion),
+	  ("org.apache.hive" % "hive-metastore" % hiveMetastoreVersion),
 	  ("org.apache.hive" % "hive-service" % hiveVersion),
 	  ("org.apache.hive" % "hive-serde" % hiveVersion),
 	  ("org.apache.hive" % "hive-shims" %   hiveVersion ),
