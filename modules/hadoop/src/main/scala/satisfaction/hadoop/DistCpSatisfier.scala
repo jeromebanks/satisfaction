@@ -37,12 +37,29 @@ class DistCpSatisfier(val src: VariablePath, val dest: VariablePath)(implicit va
             val destPath: HdfsPath = dest.getDataInstance(projParams).get.asInstanceOf[HdfsPath]
            
             if (srcPath.path.equals(destPath)) {
+                 info(s" Source $srcPath is equal to $destPath ; Doing nothing ")
                  true
             } else {
-               val result = distcp(srcPath.path, destPath.path);
-               //// Does DistCp have return codes ??
-               info(s" Result of DistCp is $result")
-               result
+              
+              
+               if(destPath.hdfs.exists( destPath.path)) {
+                  info(" Path $destPath already exists; Deleting $destPath ")
+                  destPath.hdfs.delete( destPath.path) 
+               }
+               
+               if( srcPath.path.name == destPath.path.name ) {
+                  info(s"  Paths ${srcPath.path} and ${destPath.path} have same names ; distcp'ing to parent dest ${destPath.path.parent} ")
+                 
+                  val result = distcp( srcPath.path, destPath.path.parent )
+                  info(s" Result of DistCp is $result")
+                  result
+               } else {
+                  info(s"  Paths ${srcPath.path} and ${destPath.path} have different names ")
+                  val result = distcp(srcPath.path, destPath.path);
+                  //// Does DistCp have return codes ??
+                  info(s" Result of DistCp is $result")
+                  result
+               }
             }
     } 
 
@@ -68,12 +85,15 @@ class DistCpSatisfier(val src: VariablePath, val dest: VariablePath)(implicit va
 
     def distcp(src : Path, dest : Path): Boolean = {
         val jobConf = new JobConf( Config( track) );
+        jobConf.setSpeculativeExecution(false)
+
 
         val apacheSrc : ApachePath = HdfsImplicits.Path2ApachePath(src);
         val apacheDest : ApachePath = HdfsImplicits.Path2ApachePath(dest);
         ///val apacheDest : ApachePath = dest;
 
         val opts = new DistCpOptions(List[ApachePath]( apacheSrc),apacheDest)
+        opts.setOverwrite(true)
         
         val distCp = new DistCp(jobConf, opts);
         _runningJob = distCp.execute();
