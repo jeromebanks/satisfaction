@@ -17,6 +17,8 @@ import satisfaction.track.TrackHistory
 import satisfaction.notifier.Notified
 import satisfaction.retry.Retryable
 import org.joda.time.DateTime
+import satisfaction.sla.SLAMonitored
+import satisfaction.engine.sla.SLAMonitorAgent
 
 
 /**
@@ -95,6 +97,21 @@ class ProverFactory( trackHistoryOpt : Option[TrackHistory] = None) extends Acto
         case _  => {
           log.info( "No Retry setup for goal ${goalName} ")
         }
+      }
+      trackHistoryOpt match {
+        case Some(tHistory) => {
+          track match {
+             case monitored : SLAMonitored => {
+               //// We're not intercepting messages; 
+               //// Just listening to JobSuccess and 
+               log.info(s" Goal ${goal.name} is SLA Monitored ; Creating SLAMonitorAgent to track SLA's ")
+               val monitorAgent : ActorRef = context.system.actorOf(Props(classOf[SLAMonitorAgent],actor,track.descriptor, goal.name, witness,monitored, tHistory))
+               actor ! AddListener( monitorAgent)
+             }
+             case _ => { log.info(s" Not monitoring ${goal.name} ")}
+          }
+        }
+        case None  => { log.info(s" No TrackHistory ; Not monitoring ${goal.name} ")}
       }
         
     }

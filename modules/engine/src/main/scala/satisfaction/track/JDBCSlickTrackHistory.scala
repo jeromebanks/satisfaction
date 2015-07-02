@@ -2,16 +2,14 @@ package satisfaction
 package track
 
 import java.sql.Timestamp
-
 import scala.slick.driver.H2Driver.simple._
 import scala.slick.jdbc.JdbcBackend.Database
 import scala.slick.jdbc.meta.MTable
 import scala.slick.lifted.ProvenShape
-
 import org.joda.time._
-
 import GoalStatus._
 import satisfaction.track.Witness2Json._
+import satisfaction.track.TrackHistory.GoalRun
 
 
 

@@ -9,33 +9,7 @@ import GoalStatus._
  *    track run history.
  */
 trait TrackHistory {
-  /**
-   *  Case class representing a single 
-   */
-  case class GoalRun( val trackDescriptor : TrackDescriptor,
-         val goalName : String, 
-         val witness : Witness, 
-         val startTime : DateTime, 
-         val endTime : Option[DateTime],
-         val state : GoalState.State,
-         val parentRunId: Option[String]) {
-    
-     /**
-      *  DB Identifier for the run
-      */
-     var runId : String = null
-     
-     def printGoalRun = {
-       val formatted : String = "A goalRun trackName: " + trackDescriptor.trackName +
-    		   			" goalName: " + goalName +
-    		   			" witness: " + witness +
-    		   			" startTime: " + startTime + 
-    		   			" endTime: " + endTime + 
-    		   			" state: " + state +
-    		   			" parentID: " + parentRunId
-       println(formatted)
-     }
-  }
+    import TrackHistory.GoalRun
          
    /**
     *  Record that a track run has been started.
@@ -116,5 +90,29 @@ trait TrackHistory {
 }
 
 object TrackHistory {
+   case class GoalRun( val trackDescriptor : TrackDescriptor,
+         val goalName : String, 
+         val witness : Witness, 
+         val startTime : DateTime, 
+         val endTime : Option[DateTime],
+         val state : GoalState.State,
+         val parentRunId: Option[String]) {
+    
+     /**
+      *  DB Identifier for the run
+      */
+     var runId : String = null
+     
+     def printGoalRun = {
+       val formatted : String = "A goalRun trackName: " + trackDescriptor.trackName +
+    		   			" goalName: " + goalName +
+    		   			" witness: " + witness +
+    		   			" startTime: " + startTime + 
+    		   			" endTime: " + endTime + 
+    		   			" state: " + state +
+    		   			" parentID: " + parentRunId
+       println(formatted)
+     }
+  }
 
 }

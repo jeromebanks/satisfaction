@@ -21,7 +21,9 @@ import satisfaction.Witness
 import org.joda.time.DateTime
 
 /**
- * HistoryAgent intercepts Satisfy and 
+ * HistoryAgent intercepts Satisfy and JobSuccess,JobFailure
+ *   messages
+ * 
  */
 class HistoryAgent( val forwardActor : ActorRef, 
           val trackDesc: TrackDescriptor, 
