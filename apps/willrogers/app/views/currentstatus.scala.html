@@ -1,4 +1,4 @@
-@(gsList : Set[satisfaction.GoalStatus]  )
+@(gsList : Set[satisfaction.GoalStatus], slaStatus : scala.collection.immutable.Map[String,String]  )
 
 @import helper._
 @import scala.collection.JavaConversions._
@@ -19,6 +19,7 @@
    <td>Status</td>
    <td>Witness</td>
    <td>Started</td>
+   <td>SLA</td>
    </theads>
   @gsList.filter( _.state == GoalState.Running ).map { gs => 
      <tr>
@@ -27,6 +28,7 @@
      <td>@gs.state</td>
      <td>@HtmlUtil.formatWitness( gs.witness )</td>
      <td>@HtmlUtil.formatDate( gs.timeStarted )</td>
+     <td>@HtmlUtil.formatSLA( slaStatus.get( s"${gs.track.trackName}::${gs.goalName}::${gs.witness}"))</td>
      <td> <button id="logWindowButton" onClick="window.open('/logwindow/@helper.urlEncode(gs.track.trackName)/@helper.urlEncode(gs.goalName)/@helper.urlEncode(HtmlUtil.witnessPath(gs.witness))')">Show Log</button></td>
      <td> <button id="abortButton" onClick="window.location.href='/abort/@helper.urlEncode(gs.track.trackName)/@helper.urlEncode(gs.goalName)/@helper.urlEncode(HtmlUtil.witnessPath(gs.witness))'">Abort</button></td>
      </tr>

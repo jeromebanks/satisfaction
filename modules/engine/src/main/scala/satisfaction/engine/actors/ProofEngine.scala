@@ -24,6 +24,7 @@ import akka.actor.ActorLogging
 import satisfaction.retry.Retryable
 import akka.actor.DeadLetter
 import com.typesafe.config.ConfigFactory
+import satisfaction.engine.sla.SLAMonitor
 
 class ProofEngine( val trackHistoryOpt : Option[TrackHistory] = None) extends  satisfaction.Logging{
 
@@ -40,8 +41,6 @@ class ProofEngine( val trackHistoryOpt : Option[TrackHistory] = None) extends  s
        actorRef
     }
     implicit val timeout = Timeout(60 seconds) /// Configure !!!!
-    
-    
     
 
     /**

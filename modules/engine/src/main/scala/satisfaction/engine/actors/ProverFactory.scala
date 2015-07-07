@@ -50,7 +50,6 @@ class ProverFactory( trackHistoryOpt : Option[TrackHistory] = None) extends Acto
     
     val trackHistory : TrackHistory = trackHistoryOpt.getOrElse(null)
     
-    
     implicit val ec = ExecutionContext.Implicits.global
 
     /**

@@ -29,6 +29,7 @@ class TrackHistorySpec extends Specification {
 
     
     
+    /**
     "insert started job into table" in {
     
       val runId  = trackHistory.startRun(trackDesc, goalName, witness, dt)
@@ -42,16 +43,48 @@ class TrackHistorySpec extends Specification {
       //result.toString must be 
      // H2DriverInfo.USER must be_==("sa") // NO
     }
+    * 
+    */
     
+    "calculateAverageTime and StdDeviation" in {
+      
+         val trackHistory =  JDBCSlickTrackHistory
+         
+         val trackDesc : TrackDescriptor = TrackDescriptor("Pinkman")
+         
+         val goalName = "EventAggregates"
+
+         val durTuple = trackHistory.calculateExpectedDuration(trackDesc, goalName)
+         
+         val avgMinutes = durTuple._1/1000/60
+         val stdMinutes = durTuple._1/1000/60
+         println(s" Average duration of ${trackDesc.trackName} ${goalName} is ${durTuple._1}  with std deviation of ${durTuple._2} ")
+         println(s" Average duration of ${trackDesc.trackName} ${goalName} is ${avgMinutes}  with std deviation of ${stdMinutes} ")
+      
+    }
     
-    /*
-    
+   /** 
     "show all tracks" in {
       
-      val resultList = trackHistory.getAllHistory
+      val resultList = trackHistory.getRecentHistory
       resultList.foreach(gr => gr.printGoalRun)
     }
+    * 
+    */
+    
+    "show pinkman tracks " in {
+         val trackDesc : TrackDescriptor = TrackDescriptor("Pinkman")
+         
+         val goalName = "EventAggregates"
+           
+       val now = DateTime.now    
+       val before = now.minusDays(1)
+
+       val resultList = trackHistory.goalRunsForGoal( trackDesc, goalName, Some( before), Some(now))
+       resultList.foreach(gr => gr.printGoalRun)
+    }
   
+    /*
      
     "update a running jobhistory" in { 
      //val result : String = trackHistory.completeRun("29", GoalState.Success)

@@ -38,6 +38,14 @@ object HtmlUtil {
            defaultTimeFormat.print(d)
        } 
     }
+    def formatSLA( slaOpt : Option[String] ) : String = {
+      slaOpt match {
+        case None => "N/A"
+        case Some(colorString)  => {
+          s"<span style='background-color: ${colorString} height:500px width:700px'>${colorString}</span>"
+        }
+      }
+    }
     
     def formatTrackHistoryDate(dtOpt: Option[DateTime]) : String = {
       dtOpt match {

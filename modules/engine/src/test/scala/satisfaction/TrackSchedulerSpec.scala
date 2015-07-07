@@ -84,7 +84,7 @@ class TrackSchedulerSpec extends Specification {// val mockFS = new LocalFileSys
 
  
         	  //now set up a goal
-        	  var rg = new Goal("RecurringGoal", Some(satisfier), vars)
+        	  var rg = new Goal("RecurringGoal", Goal.SatisfierFactory({ satisfier }), vars)
         	  rg
       	  }.declareTopLevel
 

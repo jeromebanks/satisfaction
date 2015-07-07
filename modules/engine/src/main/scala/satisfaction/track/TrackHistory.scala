@@ -86,6 +86,52 @@ trait TrackHistory {
    
    //def getChildrenRunId(runID : String) : Seq[GoalRun]
    
+    
+    
+    /**
+     *  Return the average duration and the standard deviation
+     *    of the times
+     */
+    def calculateExpectedDuration(trackDesc :TrackDescriptor , goalName : String) : (Long,Long) = {
+       //// Get the runs for successful job runs
+      
+       val endDate = DateTime.now()
+       val startDate = endDate.minusDays( 7 )
+       ///val filteredRuns  : Seq[GoalRun] = goalRunsForGoal(trackDesc, goalName,  Some(startDate), Some(endDate))
+       val filteredRuns  : Seq[GoalRun] = goalRunsForTrack(trackDesc,  Some(startDate), Some(endDate))
+    		  .filter( _.endTime.isDefined)
+    		  .filter( _.state == GoalState.Success)
+       .toList
+    		   
+        println(s"XXXXXXXXXXXXXXX Number of filtered runs is ${filteredRuns.size} ")		   
+
+       val sumCount : ( Long, Long ) = filteredRuns
+            .foldLeft( (0l,0l) ) { (sumNumRows, goalRun : GoalRun)  => {
+            val duration = new Interval( goalRun.startTime, goalRun.endTime.get)
+            
+            println(s" Duration from ${goalRun.startTime} to ${goalRun.endTime} is ${duration} ")
+
+            ( sumNumRows._1 + duration.toDurationMillis, sumNumRows._2 + 1 )
+         }
+       }
+       println( s" Sum of times is ${sumCount._1} number runs = ${sumCount._2} ")
+       
+       if( sumCount._2 != 0) {
+          val avg = sumCount._1 /sumCount._2
+          
+          val variance: Long = filteredRuns.map( {g: GoalRun => { 
+            val diff= new Interval( g.startTime, g.endTime.get).toDurationMillis - avg
+            diff*diff
+          }}).sum
+         
+         val stdDev =  Math.sqrt(variance/sumCount._2)
+         ( avg.toLong, stdDev.toLong)
+          
+       } else {
+         ( 0, 0)
+       }
+    }
+    
    
 }
 

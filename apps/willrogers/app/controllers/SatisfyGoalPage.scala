@@ -24,9 +24,11 @@ import play.mvc.Results
 import models.HtmlUtil
 import fs.LocalFileSystem
 import fs._
+import satisfaction.engine.sla.SLAMonitor
 
 object SatisfyGoalPage extends Controller with Logging {
     val proofEngine : ProofEngine = Global.proofEngine
+    val slaMonitor :SLAMonitor = Global.slaMonitor
 
     def satisfyGoalAction(trackName: String, goalName: String) = Action { implicit request =>
         info(s" Satisfying Goal  $trackName $goalName")
@@ -58,7 +60,14 @@ object SatisfyGoalPage extends Controller with Logging {
         //// XXX Apply sort order to statuses
         val statList = proofEngine.getGoalsInProgress
         println(" Number of Goals in Progress are " + statList.size)
-        Ok(views.html.currentstatus( statList))
+        
+        val slaMap : immutable.Map[String,String] = slaMonitor.getAllStatuses.map( { slaHealth => {
+            val jobDesc = slaHealth.desc._1
+            val slaStatus = slaHealth.desc._2.status
+            val key = s"${jobDesc._1.trackName}::${jobDesc._2}::${jobDesc._3}"
+            (key,slaStatus.toString)
+        }}).toMap
+        Ok(views.html.currentstatus( statList, slaMap))
     }
     
 

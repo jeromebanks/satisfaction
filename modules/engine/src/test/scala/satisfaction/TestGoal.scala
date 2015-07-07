@@ -4,7 +4,7 @@ package actors
 
 import org.joda.time.format.DateTimeFormatter
 import org.joda.time.format.DateTimeFormat
-import satisfaction.SatisfierFactory
+import satisfaction.Goal._
 
 
 object TestGoal {
@@ -41,7 +41,7 @@ object TestGoal {
         val evidence = Set[Evidence](satisfier)
         val dependencies = Set[(Witness => Witness, Goal)]()
 
-        val goal = new Goal(name, Some(satisfier), variables, dependencies, evidence)
+        val goal = new Goal(name, Goal.SatisfierFactory( { satisfier}  ), variables, dependencies, evidence)
 
         goal
 
@@ -55,7 +55,7 @@ object TestGoal {
         val evidence = Set[Evidence](satisfier)
         val dependencies = Set[(Witness => Witness, Goal)]()
 
-        val goal = new Goal(name, Some(satisfier), variables, dependencies, evidence)
+        val goal = new Goal(name, SatisfierFactory( { satisfier }), variables, dependencies, evidence)
 
         goal
     }
@@ -90,7 +90,7 @@ object TestGoal {
     def ReharvestGoal( dtLowest : String )(implicit track: Track) : Goal = {
        val daily = new DailySatisfier( dtLowest)
         new Goal(name = s" Reharvest to $dtLowest",
-            satisfier = Some( new DailySatisfier(dtLowest)),
+            satisfierFactory = SatisfierFactory( {  new DailySatisfier(dtLowest) } ),
             variables = List( Variable("dt")),
             evidence = Set( daily)).reharvestDaily
     }

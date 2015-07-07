@@ -18,6 +18,7 @@ import java.io.BufferedOutputStream
 import java.io.ByteArrayOutputStream
 import java.io.DataOutputStream
 import satisfaction.track.TrackFactory.TracksUnavailableException
+import satisfaction.engine.sla.SLAMonitor
 
 
 
@@ -103,6 +104,8 @@ object Global extends play.api.GlobalSettings {
     
     lazy val trackScheduler = new TrackScheduler(proofEngine)
     
+    lazy val slaMonitor = new SLAMonitor( proofEngine.akkaSystem )
+
     var trackFactory : TrackFactory = null
     
     override def onError(request: RequestHeader, ex: Throwable) = {

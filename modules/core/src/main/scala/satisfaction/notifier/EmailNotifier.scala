@@ -40,17 +40,11 @@ class EmailNotifier( val host: String, val port : Int, from : String, recipients
   
   @Override
   override def notify( witness : Witness , result : ExecutionResult )(implicit track : Track) = {
-    val email = new SimpleEmail();
-    email.setHostName(host)
-    email.setSmtpPort( port)
     
     val failSucceed = if(result.isSuccess ) { "succeeded" } else { "failed" }
         
     val headLine = s"${result.executionName} ${failSucceed} ${witness.toString} "
     
-    email.setSubject( headLine)
-    email.setFrom( from)
-    recipients.foreach( sendTo => { email.addTo(sendTo) } )
     
     val msg = new StringBuilder()
     msg.append(s" StartTime ${result.timeStarted} :: EndTime ${result.timeEnded} \n")
@@ -59,10 +53,25 @@ class EmailNotifier( val host: String, val port : Int, from : String, recipients
     msg.append(s"\n\n\n")
     msg.append(s"\n\n\n")
     
-    email.setMsg( msg.toString)
     
+    notify( headLine, msg.toString)
+    
+  }
+  
+  
+  def notify( headline: String, arbitraryMessage : String)( implicit track : Track) = {
+    val email = new SimpleEmail();
+    email.setHostName(host)
+    email.setSmtpPort( port)
+  
+    email.setSubject( headline)
+    email.setFrom( from)
+    recipients.foreach( sendTo => { email.addTo(sendTo) } )
+
+    email.setMsg( arbitraryMessage)
     
     email.send
   }
+
 
 }

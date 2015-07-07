@@ -104,10 +104,6 @@ class JDBCSlickTrackHistory( val driverInfo : DriverInfo)   extends TrackHistory
 		   implicit session =>
 		     
 		   	 returnList=table.list.filter(g=>(g._2 == trackDesc.trackName &&
-		         								g._3 == trackDesc.forUser &&
-		         								g._4 == trackDesc.version &&
-		         								(g._5 match { case v if !(v == "None") => v == trackDesc.variant
-		         										 	  case v if (v == "None") => !trackDesc.variant.isDefined}) &&
 		         								(startTime match { case Some(dateTime) =>
 		         								  						new DateTime(g._8).compareTo(dateTime.asInstanceOf[DateTime]) >= 0
 										    		 			   case None => true
@@ -140,11 +136,6 @@ class JDBCSlickTrackHistory( val driverInfo : DriverInfo)   extends TrackHistory
 	  db withSession {
 		   implicit session =>
 		   		   	 returnList= table.list.filter(g=>(g._2 == trackDesc.trackName &&
-		         								g._3 == trackDesc.forUser &&
-		         								g._4 == trackDesc.version &&
-		         								(g._5 match {
-		         										 	  case v if !(v == "None") => v == trackDesc.variant
-		         										 	  case v if (v == "None") => !trackDesc.variant.isDefined}) &&
 		         								g._6 == goalName &&
 		         								(startTime match { case Some(dateTime) =>
 		         								  						new DateTime(g._8).compareTo(dateTime.asInstanceOf[DateTime]) >= 0
@@ -177,11 +168,6 @@ class JDBCSlickTrackHistory( val driverInfo : DriverInfo)   extends TrackHistory
 		   implicit session =>
 		     
 		     returnList = table.list.filter(g => (g._2 == trackDesc.trackName && // probably want: filter then list for efficiency. But it breaks comparison
-		         										 	g._3 == trackDesc.forUser &&
-		         										 	g._4 == trackDesc.version &&
-		         										 	(g._5 match {
-		         										 	  case v if !(v == "None") => v == trackDesc.variant
-		         										 	  case v if (v == "None") => !trackDesc.variant.isDefined}) &&
 		         										 	g._6 == goalName &&
 		         										 	g._7 == renderWitness(witness)
 		    		 									)).map(g => {

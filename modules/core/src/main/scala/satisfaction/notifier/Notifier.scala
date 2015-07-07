@@ -12,6 +12,7 @@ import satisfaction.Track
 trait Notifier {
   
      def notify( witness  : Witness , result : ExecutionResult )(implicit track : Track)
+     def notify( headline : String, arbitraryMessage : String)( implicit track : Track)
 
 }
 
