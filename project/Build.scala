@@ -23,15 +23,15 @@ import com.typesafe.sbt.web.Import.WebKeys._
 
 object ApplicationBuild extends Build {
 
-  val appVersion = "2.6.4"
+  val appVersion = "2.6.6"
 
-  val hiveVersion = "0.14.0.2.2.4.2-2"
+  val hiveVersion = "0.14.0.2.2.6.5-3"
   ////val hiveVersion = "1.2.0"
 
   ///val hiveMetastoreVersion = "1.2.0"
-  val hiveMetastoreVersion = "0.14.0.2.2.4.2-2"
+  val hiveMetastoreVersion = "0.14.0.2.2.6.5-3"
 
-  val hadoopVersion = "2.6.0.2.2.4.2-2"
+  val hadoopVersion = "2.6.0.2.2.6.5-3"
 
   val core = Project(
       "satisfaction-core",
