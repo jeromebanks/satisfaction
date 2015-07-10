@@ -81,6 +81,13 @@ object HiveDriver extends Logging {
      
       info( s" Track libPath is ${track.libPath}")
       info( s" Track resourcePath is ${track.resourcePath}")
+      info( s" Previous Hive Jar Path is ${hiveConf.getJar} ") 
+      
+      //// Setting the hive jar path to the current hive-exec jar
+      val newHiveJar = track.listLibraries.filter( lb => { lb.name.startsWith( "hive-exec" ) } ).head
+      info( s" Setting Hive jar path to ${newHiveJar} ")
+      hiveConf.setVar( HiveConf.ConfVars.HIVEJAR, newHiveJar.toString )
+      
       //// Allow tracks to specify which classes to export to distributed cache 
       ///   so that whole dependency tree doe
       val auxJarFiles : Iterable[Path] =  track.trackProperties.get( Variable("satisfaction.track.hive.aux.jars.path") ) match {
