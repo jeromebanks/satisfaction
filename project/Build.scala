@@ -148,7 +148,7 @@ object ApplicationBuild extends Build {
     version in Rpm := resolveRpmVersion(),
 
     ////rpmRelease in Rpm:= resolveRpmVersion(),
-    rpmRelease in Rpm := "1",
+    rpmRelease in Rpm := "2",
     rpmBrpJavaRepackJars := true,
     packageSummary in Rpm := "wyman",
     packageSummary in Linux := "wyman",
@@ -169,7 +169,6 @@ export JAVA_HOME=/usr/java/default
 export HADOOP_CONF_DIR=/usr/hdp/current/hadoop-client/etc/hadoop
 export HADOOP_HOME=/usr/hdp/current/hadoop-client 
 export HIVE_CONF_DIR=/usr/hdp/current/hive-client/conf
-
 """)
 
 

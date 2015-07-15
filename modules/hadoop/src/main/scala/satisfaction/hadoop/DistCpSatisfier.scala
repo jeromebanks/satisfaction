@@ -1,6 +1,9 @@
 package satisfaction
 package hadoop
 
+import satisfaction._
+import hadoop._
+
 import org.apache.hadoop.mapred.JobConf
 import org.apache.hadoop.tools.DistCp
 import org.apache.hadoop.util.ToolRunner
@@ -47,19 +50,19 @@ class DistCpSatisfier(val src: VariablePath, val dest: VariablePath)(implicit va
                   destPath.hdfs.delete( destPath.path) 
                }
                
-               if( srcPath.path.name == destPath.path.name ) {
-                  info(s"  Paths ${srcPath.path} and ${destPath.path} have same names ; distcp'ing to parent dest ${destPath.path.parent} ")
+               ////if( srcPath.path.name == destPath.path.name ) {
+                  ///info(s"  Paths ${srcPath.path} and ${destPath.path} have same names ; distcp'ing to parent dest ${destPath.path.parent} ")
                  
-                  val result = distcp( srcPath.path, destPath.path.parent )
-                  info(s" Result of DistCp is $result")
-                  result
-               } else {
+                  ///val result = distcp( srcPath.path, destPath.path.parent )
+                  ///info(s" Result of DistCp is $result")
+                  ///result
+               ////} else {
                   info(s"  Paths ${srcPath.path} and ${destPath.path} have different names ")
                   val result = distcp(srcPath.path, destPath.path);
                   //// Does DistCp have return codes ??
                   info(s" Result of DistCp is $result")
                   result
-               }
+               ///}
             }
     } 
 

@@ -216,9 +216,7 @@ class HiveLocalDriver( val hiveConf : HiveConf = new HiveConf( Config.config, cl
          val shutdownMeth = hconnectionClass.getDeclaredMethod("deleteAllConnections")
          shutdownMeth.invoke( null)
       } catch {
-        case unexpected : Throwable => {
-          error(" Unexpected error trying to shutdown HBase Connections " , unexpected)
-        }
+        //// Swallow error; track had no HBase connections ...
       }
 
 
@@ -429,22 +427,17 @@ class HiveLocalDriver( val hiveConf : HiveConf = new HiveConf( Config.config, cl
         } catch {
             ///case sqlExc: HiveSQLException =>
             case sqlExc: Exception  =>
-                error(s"Dammit !!! Caught Hive SQLException ${sqlExc.getLocalizedMessage} ", sqlExc)
-           driver.get.->("close")
-           driver.get.->("destroy")
-           driver.release
-                return false
+              error(s"Dammit !!! Caught Hive SQLException ${sqlExc.getLocalizedMessage} ", sqlExc)
+              driver.get.->("close")
+              driver.get.->("destroy")
+              driver.release
+              return false
             case unexpected : Throwable => 
-                error(s"Dammit !!! Unexpected SQLException ${unexpected.getLocalizedMessage} ", unexpected)
-           driver.get.->("close")
-           driver.get.->("destroy")
-           driver.release
-                throw unexpected
-        } finally {
-          info(" What happens if we don't close the driver each time ??? ")
-           ///driver.get.->("close")
-           ///driver.get.->("destroy")
-           ///driver.release
+              error(s"Dammit !!! Unexpected SQLException ${unexpected.getLocalizedMessage} ", unexpected)
+              driver.get.->("close")
+              driver.get.->("destroy")
+              driver.release
+              throw unexpected
         }
     }
     
