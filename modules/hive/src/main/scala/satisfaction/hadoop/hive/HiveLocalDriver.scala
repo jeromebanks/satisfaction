@@ -217,6 +217,7 @@ class HiveLocalDriver( val hiveConf : HiveConf = new HiveConf( Config.config, cl
          shutdownMeth.invoke( null)
       } catch {
         //// Swallow error; track had no HBase connections ...
+        case _ => { println("swallowed exception")  }
       }
 
 

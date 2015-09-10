@@ -23,7 +23,7 @@ import com.typesafe.sbt.web.Import.WebKeys._
 
 object ApplicationBuild extends Build {
 
-  val appVersion = "2.6.6"
+  val appVersion = "2.6.7-SNAPSHOT"
 
   val hiveVersion = "0.14.0.2.2.6.5-3"
   ////val hiveVersion = "1.2.0"
@@ -97,10 +97,8 @@ object ApplicationBuild extends Build {
 
       publishMavenStyle := true,
 
-      publishTo := Some("subversion-releases" at "http://artifactory.tagged.com:8081/artifactory/libs-release-local"),
+      publishTo := Some("subversion-releases" at "http://nexus.vertigo.stitchfix.com/nexus/content/repositories/snapshots"),
 
-      credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
- 
       isSnapshot := true
   ) 
 
@@ -153,7 +151,7 @@ object ApplicationBuild extends Build {
     packageSummary in Rpm := "wyman",
     packageSummary in Linux := "wyman",
     rpmVendor in Rpm := "Tagged.com",
-    rpmUrl in Rpm:= Some("http:/github.com/tagged/satisfaction"),
+    rpmUrl in Rpm:= Some("http:/github.com/ifwe/satisfaction"),
     rpmLicense in Rpm:= Some("Apache License Version 2"),
     packageDescription in Rpm := "Next Generation Hadoop Scheduler",
     rpmGroup in Rpm:= Some("satisfaction"),
@@ -272,7 +270,6 @@ export HIVE_CONF_DIR=/usr/hdp/current/hive-client/conf
 
 
   def Resolvers = resolvers ++= Seq(
-      "artifactory.tagged.com" at "https://artifactory.tagged.com/artifactory/repo",
       "HortonWorks Releases" at "http://repo.hortonworks.com/content/repositories/releases/",
       "ConJars.org" at "http://conjars.org/repo",
       "snapshots" at "http://oss.sonatype.org/content/repositories/snapshots",

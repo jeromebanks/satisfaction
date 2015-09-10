@@ -11,10 +11,6 @@ class TemporalSpec extends Specification {
 
   
   "TemporalVariables" should {
-<<<<<<< HEAD
-=======
-  
->>>>>>> 133b57614f6c29c04c8e4fce1bc88320ef1adfbe
     
      "Produce hourly ranges" in {
        Temporal.hours foreach println
@@ -68,7 +64,6 @@ class TemporalSpec extends Specification {
          strWitness.contains( TemporalVariable.Dt )  must_== true
      }
      
-<<<<<<< HEAD
      "TemporalVariable.isTemporal" in {
          import TemporalVariable._
          TemporalVariable.isTemporalVariable( Variable("hour") ) match {
@@ -76,8 +71,6 @@ class TemporalSpec extends Specification {
            case None => false
          }
      }
-=======
->>>>>>> 133b57614f6c29c04c8e4fce1bc88320ef1adfbe
      
   } 
      

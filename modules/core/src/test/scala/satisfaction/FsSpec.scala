@@ -21,13 +21,6 @@ class FsSpec extends Specification {
        
      }
      
-<<<<<<< HEAD
-     "dsfsd" in  {
-       
-     }
-     
-=======
->>>>>>> 133b57614f6c29c04c8e4fce1bc88320ef1adfbe
      "handle multiple slash operator" in {
        val p : Path = new Path( "hdfs://jobs-dev-hnn/")
        
