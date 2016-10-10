@@ -11,10 +11,11 @@ import Path._
  *   accessing HDFS directly,
  *   
  *   and we could have potential other non-hadoop implementations,
- *    and 
+ *     like AWS S3, or LocalFS
  */
 
 trait FileSystem {
+   import FileSystem._
 
    def uri : java.net.URI
    def listFiles( p : Path ) : Iterable[FileStatus]
@@ -45,9 +46,15 @@ trait FileSystem {
    
    
    def getStatus( p : Path ) : FileStatus
+   def getStatusO( p : Path ) : Option[FileStatus] = {
+      getStatus(p)  match {
+        case null => None
+        case fs => Some(fs)
+      }
+   }
+
    def delete( p : Path )
    
-   val BlockSize = 1024*256;
 
    def readFile( path : Path ) : Array[Byte] = {
      val bufferStream = new ByteArrayOutputStream
@@ -99,5 +106,6 @@ trait FileSystem {
 
 object FileSystem {
 
+   val BlockSize = 1024*256;
   
 }

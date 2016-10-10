@@ -72,9 +72,9 @@ object ApplicationBuild extends Build {
 
      (packageBin in Rpm) <<= (packageBin in Rpm).dependsOn(packageBin in Compile)
 
-   ).settings( AppSettings: _* ).settings(RpmSettings: _* ).dependsOn(core, engine, hadoop )
+   ).settings( AppSettings: _* ).settings(RpmSettings: _* ).dependsOn(core, engine )
 
-  def CommonSettings =  Resolvers ++ Seq(
+  def CommonSettings =  Resolvers ++ Seq( 
       scalacOptions ++= Seq(
           "-unchecked",
           "-feature",
@@ -85,13 +85,14 @@ object ApplicationBuild extends Build {
           "-language:reflectiveCalls"
       ),
 
-      scalaVersion := "2.10.2",
+      ///scalaVersion := "2.10.2",
+      scalaVersion := "2.11.7",
 
-      organization := "com.tagged.satisfaction",
+      organization := "com.stitchfix.algorithms",
 
       version := appVersion,
 
-      packageSummary := "wyman",
+      packageSummary := "sticky_fingers",
 
       libraryDependencies ++= testDependencies,
 
@@ -105,7 +106,9 @@ object ApplicationBuild extends Build {
   def AppSettings =  CommonSettings ++ Seq(
      javacOptions in Compile ++= Seq("-source", "1.7", "-target", "1.7"),
 
-     unmanagedResourceDirectories in Assets += baseDirectory.value / "public"
+     unmanagedResourceDirectories in Assets += baseDirectory.value / "public",
+
+     libraryDependencies ++= awsDependencies
   )
 
 
@@ -266,6 +269,16 @@ export HIVE_CONF_DIR=/usr/hdp/current/hive-client/conf
     ("nl.grons" %% "metrics-scala" % "3.3.0_a2.2"),
     ("ch.qos.logback" % "logback-classic" % "1.0.13" )
   ) ++ testDependencies ++ jsonDependencies
+
+
+  /**
+   *  For AWS Version of WillRogers, 
+   *    Depend upon the 
+   *  satisfaction-s3 package instead of Hadoop
+   */
+  def awsDependencies = Seq(
+    ("com.stitchfix.algorithms" %% "satisfaction-s3" % "0.0.2")
+  )
 
 
 

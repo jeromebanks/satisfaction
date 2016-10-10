@@ -11,11 +11,6 @@ import satisfaction.engine.actors.JobRunner
 
 /**
  *  Class for Executor to access deployed Tracks (i.e Projects)
-<<<<<<< HEAD
-=======
-  class TracksUnavailableException( exc : Throwable ) extends RuntimeException
-  class TracksUnavailableException( exc : Throwable ) extends RuntimeException
->>>>>>> 133b57614f6c29c04c8e4fce1bc88320ef1adfbe
  *  
  *  Tracks are deployed in a well-defined directory on HDFS,
  *  where the Track Name is defined as a path relative to a 
@@ -29,12 +24,11 @@ import satisfaction.engine.actors.JobRunner
  *   
  *  
  */
-case class TrackFactory(val trackFS : FileSystem, 
-    val baseTrackPath : Path = Path("/user/satisfaction"),
+abstract class TrackFactory( val baseTrackPath : Path = Path("/user/satisfaction"),
     val schedulerOpt : Option[TrackScheduler] = None,
-    val defaultConfig : Option[Witness] =  None) extends Logging {
+    val defaultConfig : Option[Witness] =  None) extends Logging with WithFS {
   
-  implicit val hdfs = trackFS
+  implicit val hdfs = dfs
   val localFS = LocalFileSystem
   
   
@@ -104,7 +98,7 @@ case class TrackFactory(val trackFS : FileSystem,
      try {
       val trackRoot : Path =  baseTrackPath / "track" 
       
-      val allPaths = trackFS.listFilesRecursively(trackRoot)
+      val allPaths = dfs.listFilesRecursively(trackRoot)
       allPaths.filter(_.isDirectory).filter( _.path.name.startsWith("version_")).map( fs => {
           parseTrackPath( fs.path )       
       }) 
@@ -279,17 +273,17 @@ case class TrackFactory(val trackFS : FileSystem,
      try {
       info(s" Generating Track ${trackDesc.trackName} :: ${trackDesc.version} ")
       val trackPath = getTrackPath( trackDesc)
-      if( !trackFS.exists(trackPath)) {
-        throw new RuntimeException( s"No Track found under ${trackFS.uri}/${baseTrackPath} for descripter ${trackDesc} ")
+      if( !dfs.exists(trackPath)) {
+        throw new RuntimeException( s"No Track found under ${dfs.uri}/${baseTrackPath} for descripter ${trackDesc} ")
       }
       val propPath = new Path(trackPath.toUri.toString)   / "satisfaction.properties"
-      if( !trackFS.exists(propPath)) {
+      if( !dfs.exists(propPath)) {
          error( s"No properties file found for Track found under ${trackPath.toUri.toString} for descripter ${trackDesc} ")
          return None
       }
       info( s" Loading track properties at $propPath ")
       
-      val inStream = trackFS.open( propPath)
+      val inStream = dfs.open( propPath)
       val trackProps = Substituter.readProperties( inStream)
 
       val trackClassName = trackProps.get( "satisfaction.track.class") match {
@@ -359,7 +353,7 @@ case class TrackFactory(val trackFS : FileSystem,
     *  From a track descriptor, generate the path corresponding to the deployment
     */
    def getTrackPath( td : TrackDescriptor ) : Path = {
-      var tp = new Path( trackFS.uri.toString)
+      var tp = new Path( dfs.uri.toString)
       tp = tp / baseTrackPath
       tp = tp /  "track" / td.trackName
 	  if(! td.forUser.equals( td.trackName)) {
