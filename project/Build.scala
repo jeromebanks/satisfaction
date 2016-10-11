@@ -1,17 +1,17 @@
 
 import sbt._
-import Keys._
+import sbt.Keys._
 import com.typesafe.sbt.packager.linux.{LinuxPackageMapping, LinuxSymlink}
 import com.typesafe.sbt.packager.rpm.RpmDependencies
 
 import com.typesafe.sbt.packager.Keys._
 import com.typesafe.sbt.SbtNativePackager._
-import NativePackagerKeys._
 import com.typesafe.sbt.packager.archetypes.TemplateWriter
 
-import com.typesafe.sbt.packager.universal.Keys.stagingDirectory
+///import com.typesafe.sbt.packager.universal.Keys.stagingDirectory
 
-import play.Play.autoImport._
+import play.sbt._
+import Play.autoImport._
 import PlayKeys._
 
 import com.typesafe.sbt.web._
@@ -25,13 +25,15 @@ object ApplicationBuild extends Build {
 
   val appVersion = "2.6.7-SNAPSHOT"
 
-  val hiveVersion = "0.14.0.2.2.6.5-3"
-  ////val hiveVersion = "1.2.0"
+  ///val hiveVersion = "0.14.0.2.2.6.5-3"
+  val hiveVersion = "1.0.0"
 
   ///val hiveMetastoreVersion = "1.2.0"
-  val hiveMetastoreVersion = "0.14.0.2.2.6.5-3"
+  val hiveMetastoreVersion = "1.0.0"
+  ///val hiveMetastoreVersion = "0.14.0.2.2.6.5-3"
 
-  val hadoopVersion = "2.6.0.2.2.6.5-3"
+  ///val hadoopVersion = "2.6.0.2.2.6.5-3"
+  val hadoopVersion = "2.7.2"
 
   val core = Project(
       "satisfaction-core",
@@ -46,7 +48,8 @@ object ApplicationBuild extends Build {
   val hadoop = Project(
       "satisfaction-hadoop",
       file("modules/hadoop")
-  ).settings(CommonSettings: _*).settings(libraryDependencies := hadoopDependencies ).dependsOn(core).dependsOn( engine )
+  ////).settings(CommonSettings: _*).settings(libraryDependencies := hadoopDependencies ).dependsOn(core).dependsOn( engine )
+  ).settings(CommonSettings: _*).settings(libraryDependencies := hadoopDependencies ).dependsOn(core)
 
   val metastore = Project(
       "satisfaction-hive-ms",
@@ -61,7 +64,7 @@ object ApplicationBuild extends Build {
   val willrogers = Project(
       "willrogers",
       file("apps/willrogers")
-  ).enablePlugins(play.PlayScala, SbtWeb)
+  ).enablePlugins(PlayScala, SbtWeb)
    .settings( version := appVersion,
 
      ////sbt-web doesn't automatically include the assets 
@@ -98,9 +101,11 @@ object ApplicationBuild extends Build {
 
       publishMavenStyle := true,
 
-      publishTo := Some("subversion-releases" at "http://nexus.vertigo.stitchfix.com/nexus/content/repositories/snapshots"),
+      publishTo := Some("Snapshots" at "http://artifactory.vertigo.stitchfix.com/artifactory/snapshots"),
 
-      isSnapshot := true
+      isSnapshot := true,
+
+      credentials += Credentials("Artifactory Realm", "artifactory.vertigo.stitchfix.com", "admin", "password")
   ) 
 
   def AppSettings =  CommonSettings ++ Seq(
@@ -119,7 +124,8 @@ object ApplicationBuild extends Build {
     }
   }
 
-  def RpmSettings = packagerSettings ++ deploymentSettings ++ packageArchetype.java_server ++  Seq(
+  ////def RpmSettings = packagerSettings ++ deploymentSettings ++ packageArchetype.java_server ++  Seq(
+  def RpmSettings =   packageArchetype.java_server ++  Seq(
     maintainer in Linux := "Jerome Banks jbanks@tagged.com",
     packageSummary in Linux := "Satisfaction",
     packageDescription in Linux := "The Next Generation Hadoop Scheduler",
@@ -128,9 +134,9 @@ object ApplicationBuild extends Build {
     normalizedName in Linux := "satisfaction",
 
 
-    linuxPackageMappings <++= (mappings in Universal) map { universalDir => 
-        universalDir.filter( {  _._2.toString.startsWith("/usr/share") } ).map { packageMapping( _ ) } 
-    },
+    ///linuxPackageMappings <++= (mappings in Universal) map { universalDir => 
+        ///universalDir.filter( {  _._2.toString.startsWith("/usr/share") } ).map { packageMapping( _ ) } 
+    ////},
 
 
     mappings in Universal <+= (packageBin in Compile, baseDirectory ) map { (_, base) =>
@@ -190,7 +196,8 @@ export HIVE_CONF_DIR=/usr/hdp/current/hive-client/conf
  
   def testDependencies = Seq(
     ("junit" % "junit" % "4.10" % "test" intransitive() ),
-    ("org.specs2" %% "specs2" % "1.14" % "test"  )
+    ("org.specs2" %% "specs2" % "3.3.1" % "test"  ),
+    ("org.specs2" %% "specs2-junit" % "3.3.1" % "test"  )
   )
 
 
@@ -216,7 +223,8 @@ export HIVE_CONF_DIR=/usr/hdp/current/hive-client/conf
   def coreDependencies = Seq(
     ("org.slf4j" % "slf4j-api" % "1.7.7"),
     ("com.github.nscala-time" %% "nscala-time" % "1.2.0"),
-    ("org.scala-lang" % "scala-library" % "2.10.2" ),
+    ("org.scala-lang" % "scala-library" % "2.11.7" ),
+    ("org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.2"),
     ("org.apache.commons" % "commons-email" % "1.3.3" )
   ) ++ testDependencies 
 
@@ -263,10 +271,10 @@ export HIVE_CONF_DIR=/usr/hdp/current/hive-client/conf
     ("com.typesafe.akka" %% "akka-actor" % "2.3.9"),
     ("org.quartz-scheduler" % "quartz" % "2.2.1"),
     ("ch.qos.logback" % "logback-classic" % "1.0.13" ),
-    ("com.typesafe.slick" %% "slick" % "2.0.2"),
+    ("com.typesafe.slick" %% "slick" % "3.1.1"),
     ("com.h2database" % "h2" % "1.3.170"),
     ("com.typesafe.slick" %% "slick" % "2.0.2"),
-    ("nl.grons" %% "metrics-scala" % "3.3.0_a2.2"),
+    ////("nl.grons" %% "metrics-scala" % "3.3.0_a2.2"),
     ("ch.qos.logback" % "logback-classic" % "1.0.13" )
   ) ++ testDependencies ++ jsonDependencies
 
@@ -285,6 +293,8 @@ export HIVE_CONF_DIR=/usr/hdp/current/hive-client/conf
   def Resolvers = resolvers ++= Seq(
       "HortonWorks Releases" at "http://repo.hortonworks.com/content/repositories/releases/",
       "ConJars.org" at "http://conjars.org/repo",
+      "SF snapshots" at "http://artifactory.vertigo.stitchfix.com/artifactory/snapshots",
+      "SF releases"  at "http://artifactory.vertigo.stitchfix.com/artifactory/releases",
       "snapshots" at "http://oss.sonatype.org/content/repositories/snapshots",
       "releases"  at "http://oss.sonatype.org/content/repositories/releases",
       "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/",

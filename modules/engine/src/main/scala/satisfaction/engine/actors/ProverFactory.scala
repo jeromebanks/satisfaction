@@ -44,7 +44,7 @@ class ProverFactory( trackHistoryOpt : Option[TrackHistory] = None) extends Acto
     private val _actorMap: mutable.Map[String, ActorRef] = mutable.Map()
     private val _referenceMap: mutable.Map[String, mutable.Set[ActorRef]] = mutable.Map[String, mutable.Set[ActorRef]]()
 
-    lazy val jmxAgent = context.system.actorOf(Props[JMXAgent],"JMXAgent")
+    ////lazy val jmxAgent = context.system.actorOf(Props[JMXAgent],"JMXAgent")
     
     val trackHistory : TrackHistory = trackHistoryOpt.getOrElse(null)
     
@@ -141,7 +141,7 @@ class ProverFactory( trackHistoryOpt : Option[TrackHistory] = None) extends Acto
            actorRef ! AddListener( historyRef)
            
            /// Publish events to JMX Agent
-           actorRef ! AddListener( jmxAgent)
+           /////actorRef ! AddListener( jmxAgent)
                 
 
           pimpMyActor( historyRef, track, goal, witness)

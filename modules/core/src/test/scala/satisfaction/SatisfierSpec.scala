@@ -59,7 +59,8 @@ class SatisfierSpec extends Specification {
         val execResult = robustSatisfier.satisfy( witness)
         
         println( execResult)
-       
+        
+        true
      }
      
      "barf result" in {
@@ -69,7 +70,8 @@ class SatisfierSpec extends Specification {
         val execResult = barfSatisfier.satisfy( witness)
         
         println( execResult)
-       
+        
+        true
      }
      
      

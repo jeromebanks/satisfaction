@@ -9,9 +9,6 @@ import org.junit.runner.RunWith
 class WitnessSpec extends Specification {
 
     "WitnessUtils" should {
-        "checkPath" should {
-          
-        }
         "find variables in string " in {
             val str = " select * from my_view_${networkAbbr} where dt= ${dateString}  "
 
@@ -122,9 +119,10 @@ class WitnessSpec extends Specification {
             println(" NameNode is " + goodProps.get("nameNode").get)
             println(" DataRoot is " + goodProps.get("dataRoot").get)
             ///println(" MyTablePath is " + goodProps.get("myTablePath").get)
-            //goodProps.get("myProp").get mustEqual "myVal"
-            //goodProps.get("theBigProp").get mustEqual "12244"
-
+            ///goodProps.get("myProp").get mustEqual "myVal"
+            ///goodProps.get("theBigProp").get mustEqual "12244"
+            
+            true
         }
         
         "implicitly convert to java.util.Properties" in {
@@ -140,7 +138,8 @@ class WitnessSpec extends Specification {
                   lookup must be(v)
               }
             } 
-          
+        
+            true
         }
         
         

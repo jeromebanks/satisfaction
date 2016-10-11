@@ -19,6 +19,7 @@ class FsSpec extends Specification {
        
        println(s" Slashed path = $slashP")
        
+       true
      }
      
      "handle multiple slash operator" in {
@@ -50,6 +51,7 @@ class FsSpec extends Specification {
        
        println(s" PAth is $p")
        
+       true
      }
      
      "List local directory" in {
@@ -58,6 +60,7 @@ class FsSpec extends Specification {
        val allFiles = fs.listFiles( p / "dir1")
        allFiles.foreach( println( _ ))
        
+       true
      }
   }
 }

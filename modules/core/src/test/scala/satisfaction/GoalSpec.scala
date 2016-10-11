@@ -76,6 +76,7 @@ class GoalSpec extends Specification {
              headSeq = head._2.dependenciesForWitness(w)
          }
        
+         true
      }
      
      /**
