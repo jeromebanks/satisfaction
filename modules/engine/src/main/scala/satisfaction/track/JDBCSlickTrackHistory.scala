@@ -83,107 +83,99 @@ class JDBCSlickTrackHistory( val driverInfo : DriverInfo)   extends TrackHistory
 	    check 
 	} .toString
 	
+	implicit def mapTable2GoalRun( g : TrackHistoryTable) : GoalRun = {
+	  /**
+	  val gr = GoalRun(TrackDescriptor(g.trackName, g.forUser, g.version, Some(g.variant)), 
+															       	    g.goalName, parseWitness(g.witness), new DateTime(g.startTime), 
+															       	    g.endTime match { case Some(timestamp) => Some(new DateTime(timestamp))
+															       	    			 case None => null}, GoalState.withName(g.state),
+															       	    g.parentId match { case Some(id) => Some(id.toString)
+															       	    			case None => null})
+	  gr.runId = g.id.toString
+		gr
+		**/
+	  null
+	}
+	
+	def matchNone( c : Rep[String], strOpt: Option[String] ) : Rep[Boolean] = {
+	  c match { 
+	      case v if ( v == "None") => !strOpt.isDefined
+	      case v if !( v == "None") => { strOpt.isDefined && v ==  strOpt.get }
+	  }
+	}
+	
+	def withinRange( g : TrackHistoryTable, startTime : Option[DateTime], endTime : Option[DateTime] ) : Rep[Boolean] = {
+	  /**
+				val aboveStart = 	(startTime match {
+				  case Some(dateTime) => new DateTime(g.startTime).compareTo(dateTime.asInstanceOf[DateTime]) >= 0
+   		    case None => true
+				}) 
+				val beforeEnd	=	(endTime match {
+				  case Some(dateTime) if g.endTime.isDefined => new DateTime(g.endTime.get).compareTo(dateTime.asInstanceOf[DateTime]) <= 0
+	 				case Some(dateTime) if !g.endTime.isDefined => false
+	 				case None => true
+				})
+			aboveStart && beforeEnd
+			* 
+			*/
+	  true
+	}
+	
+	
 	override def goalRunsForTrack(  trackDesc : TrackDescriptor , 
               startTime : Option[DateTime], endTime : Option[DateTime] ) : Seq[GoalRun] = dbRun {
 		     
-		   table.filter(g=>(g._2 == trackDesc.trackName &&
-		         								g._3 == trackDesc.forUser &&
-		         								g._4 == trackDesc.version &&
-		         								(g._5 match { case v if !(v == "None") => v == trackDesc.variant
-		         										 	  case v if (v == "None") => !trackDesc.variant.isDefined}) &&
-		         								(startTime match { case Some(dateTime) =>
-		         								  						new DateTime(g._8).compareTo(dateTime.asInstanceOf[DateTime]) >= 0
-										    		 			   case None => true
-					    		 							}) &&
-					    		 				(endTime match {case Some(dateTime) if g._9.isDefined =>
-					    		 				  					new DateTime(g._9.get).compareTo(dateTime.asInstanceOf[DateTime]) <= 0
-									    		 				case Some(dateTime) if !g._9.isDefined => false
-									    		 				case None => true
-					    		 							})
-		   			 							)).map(g => {
-		   			 							  val gr = GoalRun(TrackDescriptor(g._2, g._3, g._4, Some(g._5)), 
-															       	    g._6, parseWitness(g._7), new DateTime(g._8), 
-															       	    g._9 match { case Some(timestamp) => Some(new DateTime(timestamp))
-															       	    			 case None => null}, GoalState.withName(g._10),
-															       	    g._11 match { case Some(id) => Some(id.toString)
-															       	    			case None => null})
-													 gr.runId = g._1.toString
-													 gr
-		   			 							}).seq
+   table.filter(g=>(g.trackName === trackDesc.trackName &&
+		         								g.forUser === trackDesc.forUser &&
+		         								g.version === trackDesc.version  &&
+		         								matchNone(g.variant, trackDesc.variant) &&
+		         								withinRange(g, startTime, endTime)
+		   			 							)).map(mapTable2GoalRun).seq
 	}
 	
 	override  def goalRunsForGoal(  trackDesc : TrackDescriptor ,  
               goalName : String,
               startTime : Option[DateTime], endTime : Option[DateTime] ) : Seq[GoalRun] = dbRun {
 	  
-		  table.list.filter(g=>(g._2 == trackDesc.trackName &&
-		         								g._3 == trackDesc.forUser &&
-		         								g._4 == trackDesc.version &&
-		         								(g._5 match {
-		         										 	  case v if !(v == "None") => v == trackDesc.variant
-		         										 	  case v if (v == "None") => !trackDesc.variant.isDefined}) &&
-		         								g._6 == goalName &&
-		         								(startTime match { case Some(dateTime) =>
-		         								  						new DateTime(g._8).compareTo(dateTime.asInstanceOf[DateTime]) >= 0
-										    		 			   case None => true
-					    		 							}) &&
-					    		 				(endTime match {case Some(dateTime) if g._9.isDefined =>
-					    		 				  					new DateTime(g._9.get).compareTo(dateTime.asInstanceOf[DateTime]) <= 0
-									    		 				case Some(dateTime) if !g._9.isDefined => false
-									    		 				case None => true
-					    		 							})
-		   			 							)).map(g => {
-		   			 							  val gr = GoalRun(TrackDescriptor(g._2, g._3, g._4, Some(g._5)), 
-															       	    g._6, parseWitness(g._7), new DateTime(g._8), 
-															       	    g._9 match { case Some(timestamp) => Some(new DateTime(timestamp))
-															       	    			 case None => null}, GoalState.withName(g._10),
-															       	    g._11 match { case Some(id) => Some(id.toString)
-															       	    			case None => null})
-														gr.runId=g._1.toString
-														gr
-		   			 							}).seq
+		  table.filter(g=>(g.trackName === trackDesc.trackName &&
+		         								g.forUser === trackDesc.forUser &&
+		         								g.version === trackDesc.version &&
+		         								matchNone(g.variant, trackDesc.variant) &&
+		         								g.goalName == goalName &&
+		         								withinRange( g, startTime, endTime )
+		   			 							)).map(mapTable2GoalRun).seq
 	}	
 	
 	override def lookupGoalRun(  trackDesc : TrackDescriptor ,  
               goalName : String,
               witness : Witness ) : Seq[GoalRun] = dbRun {
 		     
-		     table.list.filter(g => (g._2 == trackDesc.trackName && // probably want: filter then list for efficiency. But it breaks comparison
-		         										 	g._3 == trackDesc.forUser &&
-		         										 	g._4 == trackDesc.version &&
-		         										 	(g._5 match {
-		         										 	  case v if !(v == "None") => v == trackDesc.variant
-		         										 	  case v if (v == "None") => !trackDesc.variant.isDefined}) &&
-		         										 	g._6 == goalName &&
-		         										 	g._7 == renderWitness(witness)
-		    		 									)).map(g => {
-		    		 									  val gr = GoalRun(TrackDescriptor(g._2, g._3, g._4, Some(g._5)), 
-															       	    g._6, parseWitness(g._7), new DateTime(g._8), 
-															       	    g._9 match { case Some(timestamp) => Some(new DateTime(timestamp)) case None => null}, GoalState.withName(g._10),
-															       	    g._11 match { case Some(id) => Some(id.toString)
-															       	    			case None => null}) 
-															       	    gr.runId = g._1.toString
-															       	    gr
-							}).seq
+		     table.filter(g => (g.trackName === trackDesc.trackName && 
+		         										 	g.forUser === trackDesc.forUser &&
+		         										 	g.version === trackDesc.version &&
+		         								      matchNone(g.variant, trackDesc.variant) &&
+		         										 	g.goalName === goalName &&
+		         										 	g.witness === renderWitness(witness)
+		    		 									)).map(mapTable2GoalRun).seq
 	} 
 	
 	def lookupGoalRun( runID : String ) : Option[GoalRun] = dbRun { 
 	     val g = table.filter(_.id === runID.toInt)
 	   	
 	     if (!g.isEmpty) {
-	    	 val trackDesc :TrackDescriptor = TrackDescriptor(g(0)._2, g(0)._3, g(0)._4, Some(g(0)._5))
+	    	 val trackDesc :TrackDescriptor = TrackDescriptor(g(0).trackName, g(0).forUser, g(0).version, Some(g(0).variant))
 	     
-		     val dtStart : DateTime = new DateTime(g(0)._8)
-		     val dtEnd = g(0)._9 match { 
+		     val dtStart : DateTime = new DateTime(g(0).startTime)
+		     val dtEnd = g(0).endTime match { 
 		       case Some(timestamp) => Some(new DateTime(timestamp))
 		       case None => None
 		     }
-	    	 val parentId = g(0)._11 match {
+	    	 val parentId = g(0).parentId match {
 	    	   case Some(id) => Some(id.toString)
 	    	   case None => None
 	    	 }
-		     val returnGoal = GoalRun(trackDesc, g(0)._6, parseWitness(g(0)._7), dtStart, dtEnd, GoalState.withName(g(0)_10), parentId)
-		     returnGoal.runId = g(0)._1.toString
+		     val returnGoal = GoalRun(trackDesc, g(0).goalName, parseWitness(g(0).witness), dtStart, dtEnd, GoalState.withName(g(0).state), parentId)
+		     returnGoal.runId = g(0).id.toString
 		     Some(returnGoal)
 	     } else {
 	       None
@@ -193,16 +185,7 @@ class JDBCSlickTrackHistory( val driverInfo : DriverInfo)   extends TrackHistory
 	
 	
 	def getAllHistory() : Seq[GoalRun] = dbRun {
-		  table.map(g => {
-		   			 							  val gr = GoalRun(TrackDescriptor(g._2, g._3, g._4, Some(g._5)), 
-															       	    g._6, parseWitness(g._7), new DateTime(g._8), 
-															       	    g._9 match { case Some(timestamp) => Some(new DateTime(timestamp))
-															       	    			 case None => null}, GoalState.withName(g._10),
-															       	    g._11 match { case Some(id) => Some(id.toString)
-															       	    			case None => null})
-														gr.runId=g._1.toString
-														gr
-		   			 							}).seq		   			 							
+		  table.map(mapTable2GoalRun).seq
 	} 
 	
 	def getRecentHistory(): Seq[GoalRun] = dbRun {
@@ -212,17 +195,7 @@ class JDBCSlickTrackHistory( val driverInfo : DriverInfo)   extends TrackHistory
 	  val tsThreshold = new Timestamp(dt.minusDays(daysAgo).toDateMidnight().getMillis())
 	    	
 	      
-	  table.filter( g => g.startTime > tsThreshold ).map(g => {
-		   			 		 val gr = GoalRun(TrackDescriptor(g._2, g._3, g._4, Some(g._5)), 
-										g._6, parseWitness(g._7), new DateTime(g._8), 
-										g._9 match { case Some(timestamp) => Some(new DateTime(timestamp))
-													 case None => null}, 
-										GoalState.withName(g._10),
-										g._11 match { case Some(id) => Some(id.toString)
-													case None => null})
-								 gr.runId=g._1.toString
-								 gr
-		   			 							}).seq
+	  table.filter( g => g.startTime > tsThreshold ).map(mapTable2GoalRun).seq
 	} 
 	
 	def getParentRunId(runId: String) : Option[String] = dbRun {

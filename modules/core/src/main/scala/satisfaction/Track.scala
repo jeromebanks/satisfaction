@@ -292,9 +292,9 @@ case class Track(
 
        if (witness.contains(Variable("dt")) && witness.contains(Variable("hour"))) { 
 
-         var jodaDate = YYYYMMDD.parseDateTime(witness.get(Variable("dt")).get)
-         var jodaHour = (((witness.get(Variable("hour")).get.toInt -1) % 24 + 24) % 24)
-         var twoHoursAgo = (((witness.get(Variable("hour")).get.toInt -2) % 24 + 24) % 24)
+         val jodaDate = YYYYMMDD.parseDateTime(witness.get(Variable("dt")).get)
+         val jodaHour = (((witness.get(Variable("hour")).get.toInt -1) % 24 + 24) % 24)
+         val twoHoursAgo = (((witness.get(Variable("hour")).get.toInt -2) % 24 + 24) % 24)
          
          projProperties = projProperties ++ Witness(
              (Variable("lastPartitionHour") -> ( if (jodaHour < 10) "0".concat(jodaHour.toString) else jodaHour.toString )),
@@ -307,7 +307,7 @@ case class Track(
         if (witness.contains(Variable("dt"))) {
             //// convert to Date typed variables... 
             //// not just strings 
-            var jodaDate = YYYYMMDD.parseDateTime(witness.get(Variable("dt")).get)
+            val jodaDate = YYYYMMDD.parseDateTime(witness.get(Variable("dt")).get)
             ////val assign : VariableAssignment[String] = ("dateString" -> YYYYMMDD.print(jodaDate))
             val dateVars = Witness((Variable("dateString") -> YYYYMMDD.print(jodaDate)),
                 (Variable("yesterdayString") -> YYYYMMDD.print(jodaDate.minusDays(1))),
