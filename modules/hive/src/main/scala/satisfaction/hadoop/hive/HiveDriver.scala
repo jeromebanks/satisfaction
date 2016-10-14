@@ -8,7 +8,6 @@ import _root_.org.apache.hadoop.hive.conf.HiveConf
 import satisfaction.Logging
 import satisfaction.Track
 import satisfaction.Witness.Witness2Properties
-import satisfaction.hadoop.CachingTrackLoader
 import _root_.org.apache.hadoop.hive.ql.metadata.Hive
 import satisfaction.util.classloader.IsolatedClassLoader
 import satisfaction.fs.LocalFileSystem

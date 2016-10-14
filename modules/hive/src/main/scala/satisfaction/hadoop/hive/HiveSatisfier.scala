@@ -66,7 +66,7 @@ case class HiveSatisfier(val queryResource: String, val conf : HiveConf)( implic
          if(track.hasResource( queryResource)) {
            track.getResource( queryResource) 
          } else {
-           io.Source.fromInputStream(  this.getClass().getClassLoader().getResourceAsStream( queryResource) ).mkString
+           Source.fromInputStream(  this.getClass().getClassLoader().getResourceAsStream( queryResource) ).mkString
          }
        } else {
          queryResource

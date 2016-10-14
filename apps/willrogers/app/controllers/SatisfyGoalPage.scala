@@ -25,7 +25,8 @@ import models.HtmlUtil
 import fs.LocalFileSystem
 import fs._
 
-object SatisfyGoalPage extends Controller with Logging {
+///object SatisfyGoalPage extends Controller with Logging {
+class SatisfyGoalPage extends Controller with Logging {
     val proofEngine : ProofEngine = Global.proofEngine
 
     def satisfyGoalAction(trackName: String, goalName: String) = Action { implicit request =>
@@ -354,7 +355,7 @@ object SatisfyGoalPage extends Controller with Logging {
     def getTrackByName(trackName: String): Track = {
         /// XXX Figure out how to use version and variant
         val trackDesc = TrackDescriptor( trackName)
-        val trackOpt : Option[Track] = ProjectPage.trackFactory.getTrack( trackDesc)
+        val trackOpt : Option[Track] = Global.trackFactory.getTrack( trackDesc)
         trackOpt.get
     } 
   

@@ -30,7 +30,8 @@ import scala.util.Failure
  *   Page for seeing which Tracks have been scheduled,
  *    and for seeing which tracks are not scheduled.
  */
-object ScheduleTrackPage extends Controller {
+///object ScheduleTrackPage extends Controller {
+class ScheduleTrackPage extends Controller {
      println(" must show schedules!")
 
    lazy val trackFactory =  Global.trackFactory 

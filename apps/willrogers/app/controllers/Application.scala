@@ -9,7 +9,8 @@ import play.api.mvc._
 import satisfaction._
 
 
-object Application extends Controller {
+///object Application extends Controller {
+class Application extends Controller {
     ////val ms = Global.metaStore
 
     def index = Action {

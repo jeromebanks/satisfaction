@@ -67,6 +67,8 @@ object ApplicationBuild extends Build {
   ).enablePlugins(PlayScala, SbtWeb)
    .settings( version := appVersion,
 
+     ////routesGenerator := InjectedRoutesGenerator,
+
      ////sbt-web doesn't automatically include the assets 
 
      (unmanagedResourceDirectories in Compile) += (webTarget in Assets).value,
