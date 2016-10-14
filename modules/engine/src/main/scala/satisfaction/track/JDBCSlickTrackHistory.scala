@@ -11,6 +11,8 @@ import GoalStatus._
 import satisfaction.track.Witness2Json._
 import scala.concurrent.Await
 import scala.concurrent.Future
+import scala.concurrent.duration._
+import slick.lifted.Query
 
 
 
@@ -28,10 +30,10 @@ case class DriverInfo(
 
 
 class JDBCSlickTrackHistory( val driverInfo : DriverInfo)   extends TrackHistory{
+  import JDBCSlickTrackHistory._
 
-
-	class TrackHistoryTable (tag: Tag) extends Table[(Int, String, String, String, String, String, String, Timestamp, Option[Timestamp], String, Option[String])](tag, "TrackHistoryTable") {
-  		  def id : Rep[Int]= column[Int]("id", O.PrimaryKey, O.AutoInc)
+	class TrackHistoryTable (tag: Tag) extends Table[GoalRun](tag, "TrackHistoryTable") {
+  	  def id : Rep[Int]= column[Int]("id", O.PrimaryKey, O.AutoInc)
 		  def trackName : Rep[String] = column[String]("trackName")
 		  def forUser: Rep[String] = column[String]("forUser")
 		  def version: Rep[String] = column[String]("version")
@@ -41,9 +43,9 @@ class JDBCSlickTrackHistory( val driverInfo : DriverInfo)   extends TrackHistory
 		  def startTime: Rep[Timestamp] = column[Timestamp]("startTime")
 		  def endTime: Rep[Option[Timestamp]] = column[Option[Timestamp]]("endTime")
 		  def state: Rep[String] = column[String]("state")
-		  def parentId: Rep[Option[String]] = column[Option[String]]("parentId")
+		  def parentId: Rep[Option[Int]] = column[Option[Int]]("parentId")
 		  
-		  def * : ProvenShape[(Int, String, String, String, String, String, String, Timestamp, Option[Timestamp], String, Option[String])] = (id, trackName, forUser, version, variant, goalName, witness, startTime, endTime, state, parentId)
+		  def *  = (id,trackName,forUser,version,variant,goalName,witness,startTime,endTime,state,parentId) <>  ( goalRunTupled , goalRunUnapply) 
 		}
 	
 	  val table : TableQuery[TrackHistoryTable] = TableQuery[TrackHistoryTable]
@@ -55,25 +57,20 @@ class JDBCSlickTrackHistory( val driverInfo : DriverInfo)   extends TrackHistory
 	          password=driverInfo.passwd,
 	          prop = driverInfo.props)
 	  val tblCreate = {
-	      if (dbRun({ MTable.getTables(mainTable) }).isEmpty) {
+	      ///if ((dbAction{ MTable.getTables(mainTable) }).isEmpty) {
 	    	 table.schema.create
-	      }
+	      ///}
 	  }
 
 
 
 	override def startRun(trackDesc : TrackDescriptor, goalName: String, witness: Witness, startTime: DateTime) : String =  dbAction {
-		(table returning table.map(_.id)) += 
-		  (1, trackDesc.trackName, trackDesc.forUser, trackDesc.version, trackDesc.variant.toString(), 
-			goalName, renderWitness(witness), new Timestamp(startTime.getMillis()), None, GoalState.Running.toString(), 
-			None)
+		 (table returning table.map(_.id)) += GoalRun( trackDesc, goalName, witness, startTime )
 	} .toString
 
 	
 	override def startSubGoalRun ( trackDesc: TrackDescriptor, goalName : String, witness: Witness, startTime : DateTime, parentRunId: String) : String = dbAction {
-     (table returning table.map(_.id)) += 
-				  (1, trackDesc.trackName, trackDesc.forUser, trackDesc.version, trackDesc.variant.toString(), 
-					goalName, renderWitness(witness), new Timestamp(startTime.getMillis()), None, GoalState.Running.toString(), Some(parentRunId))
+     (table returning table.map(_.id)) += GoalRun( trackDesc, goalName, witness, startTime, Some(parentRunId) )
 	} .toString
 	
 	override def completeRun( id : String, state : GoalState.State) : String = dbAction {
@@ -83,19 +80,6 @@ class JDBCSlickTrackHistory( val driverInfo : DriverInfo)   extends TrackHistory
 	    check 
 	} .toString
 	
-	implicit def mapTable2GoalRun( g : TrackHistoryTable) : GoalRun = {
-	  /**
-	  val gr = GoalRun(TrackDescriptor(g.trackName, g.forUser, g.version, Some(g.variant)), 
-															       	    g.goalName, parseWitness(g.witness), new DateTime(g.startTime), 
-															       	    g.endTime match { case Some(timestamp) => Some(new DateTime(timestamp))
-															       	    			 case None => null}, GoalState.withName(g.state),
-															       	    g.parentId match { case Some(id) => Some(id.toString)
-															       	    			case None => null})
-	  gr.runId = g.id.toString
-		gr
-		**/
-	  null
-	}
 	
 	def matchNone( c : Rep[String], strOpt: Option[String] ) : Rep[Boolean] = {
 	  c match { 
@@ -104,33 +88,58 @@ class JDBCSlickTrackHistory( val driverInfo : DriverInfo)   extends TrackHistory
 	  }
 	}
 	
+	
 	def withinRange( g : TrackHistoryTable, startTime : Option[DateTime], endTime : Option[DateTime] ) : Rep[Boolean] = {
-	  /**
+	  /***
 				val aboveStart = 	(startTime match {
 				  case Some(dateTime) => new DateTime(g.startTime).compareTo(dateTime.asInstanceOf[DateTime]) >= 0
    		    case None => true
 				}) 
 				val beforeEnd	=	(endTime match {
-				  case Some(dateTime) if g.endTime.isDefined => new DateTime(g.endTime.get).compareTo(dateTime.asInstanceOf[DateTime]) <= 0
-	 				case Some(dateTime) if !g.endTime.isDefined => false
+				  case Some(dateTime) => {
+				     g.endTime match {
+				       case Some(endDateStamp) => new DateTime(endDateStamp).isBefore(
+				     }
+				    if g.endTime.isDefined => new DateTime(g.endTime.get).compareTo(dateTime.asInstanceOf[DateTime]) <= 0
+				  }
 	 				case None => true
 				})
 			aboveStart && beforeEnd
 			* 
 			*/
-	  true
+	  /// XXX Handle null cases
+	   ///g.startTime >= datetime2Timestamp(startTime.get) && g.endTime <= datetime2Timestamp(endTime.get )
+	  /**
+	  g.withFilter( 
+	  g.filter( 
+	  if( !g.endTime.isNull ) {
+	      g.startTime >= datetime2Timestamp(startTime.get) && endTime <= dateTime2Timestamp( endTime.get)
+	    
+	  } else {
+	      g.startTime >= datetime2Timestamp(startTime.get) 
+	   }
+	   * 
+	   */
+	      g.startTime >= datetime2Timestamp(startTime.get) 
 	}
 	
+  implicit def datetime2Timestamp( dt : DateTime) : java.sql.Timestamp = {
+     new Timestamp( dt.getMillis ) 
+  }
+  
+  implicit def timestamp2DateTime( ts : Timestamp) : DateTime = {
+     new DateTime( ts.getTime ) 
+  }
 	
 	override def goalRunsForTrack(  trackDesc : TrackDescriptor , 
-              startTime : Option[DateTime], endTime : Option[DateTime] ) : Seq[GoalRun] = dbRun {
+              startTime : Option[DateTime], endTime : Option[DateTime] ) : Seq[GoalRun] =  dbRun {
 		     
    table.filter(g=>(g.trackName === trackDesc.trackName &&
 		         								g.forUser === trackDesc.forUser &&
 		         								g.version === trackDesc.version  &&
 		         								matchNone(g.variant, trackDesc.variant) &&
 		         								withinRange(g, startTime, endTime)
-		   			 							)).map(mapTable2GoalRun).seq
+		   			 							))
 	}
 	
 	override  def goalRunsForGoal(  trackDesc : TrackDescriptor ,  
@@ -143,7 +152,7 @@ class JDBCSlickTrackHistory( val driverInfo : DriverInfo)   extends TrackHistory
 		         								matchNone(g.variant, trackDesc.variant) &&
 		         								g.goalName == goalName &&
 		         								withinRange( g, startTime, endTime )
-		   			 							)).map(mapTable2GoalRun).seq
+		   			 							))
 	}	
 	
 	override def lookupGoalRun(  trackDesc : TrackDescriptor ,  
@@ -156,36 +165,15 @@ class JDBCSlickTrackHistory( val driverInfo : DriverInfo)   extends TrackHistory
 		         								      matchNone(g.variant, trackDesc.variant) &&
 		         										 	g.goalName === goalName &&
 		         										 	g.witness === renderWitness(witness)
-		    		 									)).map(mapTable2GoalRun).seq
+		    		 									))
 	} 
 	
 	def lookupGoalRun( runID : String ) : Option[GoalRun] = dbRun { 
-	     val g = table.filter(_.id === runID.toInt)
-	   	
-	     if (!g.isEmpty) {
-	    	 val trackDesc :TrackDescriptor = TrackDescriptor(g(0).trackName, g(0).forUser, g(0).version, Some(g(0).variant))
-	     
-		     val dtStart : DateTime = new DateTime(g(0).startTime)
-		     val dtEnd = g(0).endTime match { 
-		       case Some(timestamp) => Some(new DateTime(timestamp))
-		       case None => None
-		     }
-	    	 val parentId = g(0).parentId match {
-	    	   case Some(id) => Some(id.toString)
-	    	   case None => None
-	    	 }
-		     val returnGoal = GoalRun(trackDesc, g(0).goalName, parseWitness(g(0).witness), dtStart, dtEnd, GoalState.withName(g(0).state), parentId)
-		     returnGoal.runId = g(0).id.toString
-		     Some(returnGoal)
-	     } else {
-	       None
-	     }
-	}
-
-	
+	     table.filter(_.id === runID.toInt)
+	}.headOption
 	
 	def getAllHistory() : Seq[GoalRun] = dbRun {
-		  table.map(mapTable2GoalRun).seq
+		  table
 	} 
 	
 	def getRecentHistory(): Seq[GoalRun] = dbRun {
@@ -195,23 +183,22 @@ class JDBCSlickTrackHistory( val driverInfo : DriverInfo)   extends TrackHistory
 	  val tsThreshold = new Timestamp(dt.minusDays(daysAgo).toDateMidnight().getMillis())
 	    	
 	      
-	  table.filter( g => g.startTime > tsThreshold ).map(mapTable2GoalRun).seq
+	  table.filter( g => g.startTime > tsThreshold )
 	} 
 	
 	def getParentRunId(runId: String) : Option[String] = dbRun {
-	   val resultSet = table.filter(_.id === runId.toInt).map(gr => gr.parentId) // might want throw exception is more than 1 result exists....
-	   resultSet.max.result
-	}
+	   table.filter(_.id === runId.toInt).map(gr => gr.parentId.toString) // might want throw exception is more than 1 result exists....
+	}.headOption
 	
 
-  def dbRun[X]( f : => DBIO[X] ) : X = {
-	   val dbioF : Future[X] = this.db.run( f ) 
-	   Await( dbioF, 30 seconds )
+  def dbRun[X]( f : => Query[_,X,Seq] ) : Seq[X] = {
+	   val dbioF : Future[Seq[X]] = this.db.run( f.result ) 
+	   Await.result( dbioF, 30 seconds )
 	}
   
-  def dbAction[X]( f : => DBIOAction[X,_,_] ) : X = {
+  def dbAction[X]( f : => DBIOAction[X,NoStream,Nothing] ) : X = {
 	   val dbioF : Future[X] = this.db.run( f ) 
-	   Await( dbioF, 30 seconds )
+	   Await.result( dbioF, 30 seconds )
 	}
   
   
@@ -220,5 +207,59 @@ class JDBCSlickTrackHistory( val driverInfo : DriverInfo)   extends TrackHistory
 
 object JDBCSlickTrackHistory extends JDBCSlickTrackHistory( new DriverInfo) {
  
+  /// Define our mapping from row to our GoalRun case class for Slick
+	def mapGoalRun2Table( g : GoalRun) = {
+	  
+	   Some((g.runId.get.toInt,
+	     g.trackDescriptor.trackName,
+	     g.trackDescriptor.forUser,
+	     g.trackDescriptor.version,
+	     g.trackDescriptor.variant.get,
+	     g.goalName,
+	     renderWitness(g.witness),
+	     new java.sql.Timestamp(g.startTime.getMillis),
+	     Some(new java.sql.Timestamp(g.endTime.get.getMillis)),
+	     g.state.toString,
+	     Some(g.parentRunId.get.toInt)
+	     ))
+	     
+	}
+  lazy val goalRunUnapply :      GoalRun => Option[(Int, String, String, String, String, String, String, java.sql.Timestamp, Option[java.sql.Timestamp], String, Option[Int])]  = mapGoalRun2Table
+	
+
+  def mapTable2GoalRun(id:Int,
+      trackName:String, 
+      forUser:String, 
+      version:String,
+      variant:String,
+      goalName:String, 
+      witness:String,
+      startTime:Timestamp, 
+      endTime:Option[Timestamp],
+      state:String, 
+      parentId:Option[Int]
+	    ) : GoalRun = {
+	     GoalRun(Some(id.toString), TrackDescriptor(trackName, forUser, version, Some(variant)), 
+															       	    goalName, parseWitness(witness), new DateTime(startTime), 
+															       	    endTime.flatMap(ts=> Some(new DateTime(ts))),
+															       	    GoalState.withName(state),
+															       	    parentId.flatMap( id => Some(id.toString) ) )
+	}
+	
+  lazy val goalRunTupled : ( (Int, String, String, String, String, String, String, java.sql.Timestamp, Option[java.sql.Timestamp], String, Option[Int]) ) => GoalRun = {
+    case tup => mapTable2GoalRun(tup._1,
+              tup._2,
+              tup._3,
+              tup._4,
+              tup._5,
+              tup._6,
+              tup._7,
+              tup._8,
+              tup._9,
+              tup._10,
+              tup._11
+           )
+  }
+	
   
 }

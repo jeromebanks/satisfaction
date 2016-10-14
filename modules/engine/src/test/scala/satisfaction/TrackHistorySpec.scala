@@ -44,12 +44,13 @@ class TrackHistorySpec extends Specification {
     }
     
     
-    /*
     
     "show all tracks" in {
       
       val resultList = trackHistory.getAllHistory
       resultList.foreach(gr => gr.printGoalRun)
+      
+      true
     }
   
      
@@ -84,6 +85,9 @@ class TrackHistorySpec extends Specification {
     	val endTime = new DateTime(simpleDateFormat.parse("2014-06-17 15:55:15"))
 
         val resultList = trackHistory.goalRunsForGoal(trackDesc, goalName, None, Some(endTime))
+        
+        
+        true
     }
 
     "look up goals" in {
@@ -96,6 +100,7 @@ class TrackHistorySpec extends Specification {
       }
        "by desc" in {
          val goalListResult = trackHistory.lookupGoalRun(trackDesc, goalName, witness)
+         true 
         //result2.size should_== 25
        }
     }
@@ -107,8 +112,8 @@ class TrackHistorySpec extends Specification {
          val witness = Witness( VariableAssignment( Variable("date"), "20140522"), VariableAssignment(Variable("hour"), "08"))
          val json = renderWitness( witness)
          
-         json.length must_!= 0
          println(json)
+         json.length must_!= 0
         
       } 
       
@@ -126,7 +131,6 @@ class TrackHistorySpec extends Specification {
          hour must_== "08"
       }
 
-**/
       
     
   }

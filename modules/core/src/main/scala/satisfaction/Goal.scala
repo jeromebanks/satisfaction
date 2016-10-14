@@ -195,12 +195,17 @@ object Goal {
      *  Copy Constructor 
      */
     def apply( g : Goal )( implicit track : Track) : Goal = {
-       new Goal( g.name,
+       new Goal(g.name,
     		   	g.satisfierFactory,
     		   	g.variables,
     		   	g.dependencies,
     		   	g.evidence ) 
     }
+    
+    def apply( name : String , sat:Satisfier, vars:List[Variable[_]])(implicit track:Track) : Goal = {
+      new Goal( name, SatisfierFactory( sat) , vars)
+    }
+    
     
     /**
      *  Create a SatisfierFactory which returns a specific Satisfier

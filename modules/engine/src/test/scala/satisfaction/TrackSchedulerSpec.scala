@@ -84,7 +84,7 @@ class TrackSchedulerSpec extends Specification {// val mockFS = new LocalFileSys
 
  
         	  //now set up a goal
-        	  var rg = new Goal("RecurringGoal", Some(satisfier), vars)
+        	  var rg =  Goal("RecurringGoal", satisfier, vars)
         	  rg
       	  }.declareTopLevel
 
@@ -95,10 +95,12 @@ class TrackSchedulerSpec extends Specification {// val mockFS = new LocalFileSys
       	val trackFactory : TrackFactory = {
       	  try{
 	      	  //val hadoopWitness: Witness = Config.Configuration2Witness(Config.config)
-		      var tf = new TrackFactory( mockFS, resourcePath, Some(scheduler)) {
+		      var tf = new TrackFactory( resourcePath, Some(scheduler)) {
 		        override def getTrack(trackDesc : TrackDescriptor) : Option[Track] = {
 		          Some(track)
 		        }
+		        
+		        override def dfs = mockFS
 		      }
 		      scheduler.trackFactory = tf
 		      tf  
@@ -203,6 +205,7 @@ class TrackSchedulerSpec extends Specification {// val mockFS = new LocalFileSys
 //          x mustEqual oldValue + 1
 //       }
        */
+       true
      }
      
    }//schedule
@@ -243,6 +246,7 @@ class TrackSchedulerSpec extends Specification {// val mockFS = new LocalFileSys
        scheduler.getScheduledTracks must haveSize(0)
        * 
        */
+       true
      }
      "a cron job" in { 
        /*
@@ -281,6 +285,7 @@ class TrackSchedulerSpec extends Specification {// val mockFS = new LocalFileSys
        println(" scheduler should have "+scheduler.getScheduledTracks.size+" tracks scheduled")
        scheduler.getScheduledTracks must haveSize(0)
        */
+       true
      }
    }// unschedule
    
@@ -306,6 +311,7 @@ class TrackSchedulerSpec extends Specification {// val mockFS = new LocalFileSys
      scheduler.unscheduleTrack(cronTrack.descriptor)
      scheduler.getScheduledTracks must haveSize(0)
      */
+     true
    } //list all
    
  }//should

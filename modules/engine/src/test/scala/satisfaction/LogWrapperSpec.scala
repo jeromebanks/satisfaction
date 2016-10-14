@@ -102,11 +102,15 @@ class LogWrapperSpec extends Specification {
      
       "get list of goals for a track" in {
         LogWrapper.getGoalLogName("UserSession").foreach(goal => println("myGoals: "+goal))
+        
+        true
       }
       
       "get runs for a track and goal " in {
         LogWrapper.getGoalLogRuns("UserSession", "_Partition_Exists_event_log__event_type_@_login_detail_", None).foreach(
             run => println("forOneGoal " + run))
+            
+         true
       }
   }
 }

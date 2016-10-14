@@ -8,11 +8,8 @@ import GoalStatus._
  *  Interface to a persistent DB implementation which will store 
  *    track run history.
  */
-trait TrackHistory {
-  /**
-   *  Case class representing a single 
-   */
-  case class GoalRun( val trackDescriptor : TrackDescriptor,
+case class GoalRun(val runId : Option[String],
+          val trackDescriptor : TrackDescriptor,
          val goalName : String, 
          val witness : Witness, 
          val startTime : DateTime, 
@@ -20,13 +17,12 @@ trait TrackHistory {
          val state : GoalState.State,
          val parentRunId: Option[String]) {
     
-     /**
-      *  DB Identifier for the run
-      */
-     var runId : String = null
-     
+     def withId( id : String) = {
+       copy( runId = Some(id))
+     }
+
      def printGoalRun = {
-       val formatted : String = "A goalRun trackName: " + trackDescriptor.trackName +
+       val formatted : String = s"A goalRun ID ${runId} trackName: " + trackDescriptor.trackName +
     		   			" goalName: " + goalName +
     		   			" witness: " + witness +
     		   			" startTime: " + startTime + 
@@ -35,7 +31,20 @@ trait TrackHistory {
     		   			" parentID: " + parentRunId
        println(formatted)
      }
+}
+
+object GoalRun {
+  def apply(trackDesc:TrackDescriptor,
+         goalName : String, 
+         witness : Witness, 
+         startTime : DateTime, 
+         parentRunId: Option[String] = None) : GoalRun = {
+    new GoalRun( None, trackDesc, goalName, witness, startTime, None, GoalState.Unstarted, parentRunId ) 
   }
+}
+
+trait TrackHistory {
+  
          
    /**
     *  Record that a track run has been started.
@@ -110,7 +119,6 @@ trait TrackHistory {
    
    def getParentRunId(runID: String) : Option[String]
    
-   //def getChildrenRunId(runID : String) : Seq[GoalRun]
    
    
 }

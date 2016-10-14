@@ -23,7 +23,11 @@ class TrackFactorySpec extends Specification {
         val resourcePath = LocalFileSystem.currentDirectory / "modules" / "engine" / "src" /
             "test" / "resources";
    
-        val mockTrackFactory  = new TrackFactory( mockFS, resourcePath  / "user" / "satisfaction")
+        object mockTrackFactory  extends TrackFactory( resourcePath  / "user" / "satisfaction") {
+
+              def dfs = mockFS
+          
+        }
 
         
       "TrackFactorySpec" should {
