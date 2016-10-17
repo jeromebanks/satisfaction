@@ -91,16 +91,20 @@ class TrackSchedulerSpec extends Specification {// val mockFS = new LocalFileSys
       	  }
       	}
       	
+      	    
+        trait WithMockFS extends WithFS {
+          def dfs = mockFS
+        }
+   
       	
       	val trackFactory : TrackFactory = {
       	  try{
 	      	  //val hadoopWitness: Witness = Config.Configuration2Witness(Config.config)
-		      var tf = new TrackFactory( resourcePath, Some(scheduler)) {
+		      var tf = new TrackFactory( resourcePath, Some(scheduler)) with WithMockFS {
 		        override def getTrack(trackDesc : TrackDescriptor) : Option[Track] = {
 		          Some(track)
 		        }
 		        
-		        override def dfs = mockFS
 		      }
 		      scheduler.trackFactory = tf
 		      tf  

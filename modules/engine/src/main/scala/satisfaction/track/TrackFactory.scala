@@ -26,7 +26,8 @@ import satisfaction.engine.actors.JobRunner
  */
 abstract class TrackFactory( val baseTrackPath : Path = Path("/user/satisfaction"),
     val schedulerOpt : Option[TrackScheduler] = None,
-    val defaultConfig : Option[Witness] =  None) extends Logging with WithFS {
+    val defaultConfig : Option[Witness] =  None) extends Logging  {
+ this : WithFS =>
   
   implicit val hdfs = dfs
   val localFS = LocalFileSystem

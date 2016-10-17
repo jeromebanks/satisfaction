@@ -18,8 +18,8 @@ import willrogers.Global
 
 
 
-///object TrackHistoryPage extends Controller {
-class TrackHistoryPage extends Controller {
+object TrackHistoryPage extends Controller {
+///class TrackHistoryPage extends Controller {
   lazy val trackHistory = Global.trackHistory
   
   

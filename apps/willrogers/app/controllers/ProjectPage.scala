@@ -18,8 +18,8 @@ import satisfaction.TrackDescriptor
 import satisfaction.engine.actors.LogWrapper
 import satisfaction.Witness
 
-///object ProjectPage extends Controller {
-class ProjectPage extends Controller {
+object ProjectPage extends Controller {
+///class ProjectPage extends Controller {
   val trackFactory : TrackFactory = Global.trackFactory
   
   
@@ -110,9 +110,9 @@ class ProjectPage extends Controller {
       
     }
     
-}
+///}
 
-object ProjectPage {
+///object ProjectPage {
 
 
     //// Where does layout code belong ???

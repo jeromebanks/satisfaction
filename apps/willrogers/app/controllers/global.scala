@@ -16,6 +16,7 @@ import java.io.ByteArrayOutputStream
 import java.io.DataOutputStream
 import satisfaction.track.TrackFactory.TracksUnavailableException
 import satisfaction.fs.s3.WithS3
+import satisfaction.fs.s3.WithInstanceProfile
 import awscala.Credentials
 import satisfaction.fs.s3.WithAWSCredentials
 ////import satisfaction.hadoop.hdfs.WithHDFS
@@ -32,9 +33,8 @@ object Global extends play.api.GlobalSettings {
           try {
              ///class HDFSTrackFactory extends TrackFactory with WithHDFS ;
              ///val tf = new TrackFactory( trackPath, Some(trackScheduler), Some(hadoopWitness)) with WithS3 with AWSCredentials {
-             val tf = new TrackFactory( trackPath, Some(trackScheduler), None) with WithS3 with WithAWSCredentials {
+             val tf = new TrackFactory( trackPath, Some(trackScheduler), None) with WithS3 with WithInstanceProfile {
                 override def bucketName = "stitchfix.aa.default"
-                override def credentials = Credentials( sys.env("AWS_ACCESS_KEY_ID"), sys.env("AWS_SECRET_ACCESS_KEY"))  
              }
              ///val tf = new TrackFactory with WithHDFS
              trackScheduler.trackFactory = tf
@@ -51,8 +51,13 @@ object Global extends play.api.GlobalSettings {
 
     var trackPath : Path = new Path("/user/satisfaction")
 
+    override def beforeStart( app: Application) = {
+      super.beforeStart(app)
+      
+      println(s" Hey Before Start !!!")
+    }
 
-    override def onStart(app: Application) {
+    override def onStart(app: Application) = {
         super.onStart( app)
         /// XXX initialize name-node, job-tracker, and metastore 
         //// with values from app.configuration 

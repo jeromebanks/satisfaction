@@ -56,11 +56,11 @@ class JDBCSlickTrackHistory( val driverInfo : DriverInfo)   extends TrackHistory
 	          user=driverInfo.user, 
 	          password=driverInfo.passwd,
 	          prop = driverInfo.props)
-	  val tblCreate = {
+	  ///val tblCreate = {
 	      ///if ((dbAction{ MTable.getTables(mainTable) }).isEmpty) {
-	    	 table.schema.create
+	    	 ///table.schema.create
 	      ///}
-	  }
+	  ///}
 
 
 

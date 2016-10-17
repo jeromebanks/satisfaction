@@ -13,6 +13,7 @@ import com.typesafe.sbt.packager.archetypes.TemplateWriter
 import play.sbt._
 import Play.autoImport._
 import PlayKeys._
+import play.sbt.routes.RoutesKeys._
 
 import com.typesafe.sbt.web._
 import com.typesafe.sbt.web.SbtWeb._
@@ -65,9 +66,14 @@ object ApplicationBuild extends Build {
       "willrogers",
       file("apps/willrogers")
   ).enablePlugins(PlayScala, SbtWeb)
-   .settings( version := appVersion,
+   .dependsOn(core)
+   .aggregate(core)
+   .dependsOn(engine)
+   .aggregate(engine)
+   .settings( 
+     version := appVersion,
 
-     ////routesGenerator := InjectedRoutesGenerator,
+     routesGenerator := StaticRoutesGenerator,
 
      ////sbt-web doesn't automatically include the assets 
 
@@ -75,11 +81,18 @@ object ApplicationBuild extends Build {
 
      (packageBin in Compile) <<= (packageBin in Compile).dependsOn(assets in Assets),
 
-     (packageBin in Rpm) <<= (packageBin in Rpm).dependsOn(packageBin in Compile)
+     (packageBin in Rpm) <<= (packageBin in Rpm).dependsOn(packageBin in Compile),
 
-   ).settings( AppSettings: _* ).settings(RpmSettings: _* ).dependsOn(core, engine )
+     libraryDependencies ++= Seq(
+	  ("com.stitchfix.algorithms" %% "satisfaction-core" % appVersion),
+	  ("com.stitchfix.algorithms" %% "satisfaction-engine" % appVersion)
+     )
+
+   ).settings(CommonSettings: _*).settings( AppSettings: _* ).settings(RpmSettings: _* )
 
   def CommonSettings =  Resolvers ++ Seq( 
+     javacOptions in Compile ++= Seq("-source", "1.8", "-target", "1.8"),
+
       scalacOptions ++= Seq(
           "-unchecked",
           "-feature",
@@ -91,7 +104,7 @@ object ApplicationBuild extends Build {
       ),
 
       ///scalaVersion := "2.10.2",
-      scalaVersion := "2.11.7",
+      scalaVersion := "2.11.8",
 
       organization := "com.stitchfix.algorithms",
 
@@ -100,6 +113,8 @@ object ApplicationBuild extends Build {
       packageSummary := "sticky_fingers",
 
       libraryDependencies ++= testDependencies,
+
+      ///fork := true,
 
       publishMavenStyle := true,
 
@@ -111,7 +126,6 @@ object ApplicationBuild extends Build {
   ) 
 
   def AppSettings =  CommonSettings ++ Seq(
-     javacOptions in Compile ++= Seq("-source", "1.7", "-target", "1.7"),
 
      unmanagedResourceDirectories in Assets += baseDirectory.value / "public",
 
@@ -122,7 +136,7 @@ object ApplicationBuild extends Build {
   def resolveRpmVersion() = {
     sys.env.get("BUILD_NUMBER") match {
       case Some(buildNumber) => buildNumber
-      case None => appVersion
+      case None => "2.6.8"
     }
   }
 
@@ -287,7 +301,9 @@ export HIVE_CONF_DIR=/usr/hdp/current/hive-client/conf
    *  satisfaction-s3 package instead of Hadoop
    */
   def awsDependencies = Seq(
-    ("com.stitchfix.algorithms" %% "satisfaction-s3" % "0.0.2")
+    ("com.stitchfix.algorithms" %% "satisfaction-s3" % "0.0.4"),
+    ("com.stitchfix.algorithms" %% "satisfaction-core" % appVersion),
+    ("com.stitchfix.algorithms" %% "satisfaction-engine" % appVersion)
   )
 
 

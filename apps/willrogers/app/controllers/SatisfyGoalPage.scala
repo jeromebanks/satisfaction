@@ -24,10 +24,13 @@ import play.mvc.Results
 import models.HtmlUtil
 import fs.LocalFileSystem
 import fs._
+import javax.inject._
 
-///object SatisfyGoalPage extends Controller with Logging {
-class SatisfyGoalPage extends Controller with Logging {
-    val proofEngine : ProofEngine = Global.proofEngine
+object SatisfyGoalPage extends Controller with Logging {
+////class SatisfyGoalPage @Inject()( val proofEngine : ProofEngine) extends Controller with Logging {
+///class SatisfyGoalPage  extends Controller with Logging {
+
+    lazy val proofEngine = Global.proofEngine
 
     def satisfyGoalAction(trackName: String, goalName: String) = Action { implicit request =>
         info(s" Satisfying Goal  $trackName $goalName")
